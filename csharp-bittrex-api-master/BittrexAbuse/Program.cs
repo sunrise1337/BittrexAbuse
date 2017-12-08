@@ -11,7 +11,7 @@ namespace BittrexAbuse
     {
         static void Main(string[] args)
         {
-            
+            int i;
         }
 
 
