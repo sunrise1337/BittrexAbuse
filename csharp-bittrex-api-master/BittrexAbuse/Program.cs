@@ -49,8 +49,7 @@ namespace BittrexAbuse
         static void BuyOrder()
         {
             var tmp = e.GetMarketSummary("ZEC");
-            var mid = (tmp.High + tmp.Low) / 2;
-            if (tmp.Last<(tmp.High * 0.7m) && tmp.Last<oldLast)
+            if (tmp.Last<(tmp.High * 0.97m) && tmp.Last<oldLast)
             {
                 e.PlaceBuyOrder("ZEC", 0.000000001m, tmp.Last);
                 purchase = tmp.Last;
