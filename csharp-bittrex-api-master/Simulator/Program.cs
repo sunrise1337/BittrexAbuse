@@ -22,35 +22,34 @@ namespace BittrexAbuse
 
             Last = e.GetMarketSummary("BTC");
             Check();
-            if (USDT> 0)
+
+            if (Last.Last < OldLast && Last.Last < (Last.High * 098m))
             {
 
+                Purchase = Last.Last;
+                BTC = USDT / Last.Last;
+                USDT = USDT - (BTC * Last.Last);
+                Console.WriteLine("METHOD BUY");
+                Console.WriteLine("Balance = {0} BTC", BTC);
+                Console.WriteLine("Balance = {0} USDT", USDT);
 
-            if (Last.Last < OldLast && Last.Last < (Last.High*098m))
-            {
-              
-                    Purchase = Last.Last;
-                    BTC = USDT / Last.Last;
-                    USDT = USDT - (BTC * Last.Last);
-                    Console.WriteLine("Balance = {0} BTC",BTC);
-                    Console.WriteLine("Balance = {0} USDT", USDT);
-
-                    Console.WriteLine("METHOD BUY");
-                }
+                
             }
+
         }
         public bool Sell(Exchange e)
         {
             Last = e.GetMarketSummary("BTC");
-                if ( Last.Last > Purchase && BTC >0)
-                {
+            if (Last.Last > Purchase && BTC > 0)
+            {
                 USDT += BTC * Last.Last;
                 BTC = 0;
-                Console.WriteLine("Balance = {0} USDT",USDT);
                 Console.WriteLine("METHOD SELL");
-                    return true;
-                }
-            
+                Console.WriteLine("Balance = {0} USDT", USDT);
+
+                return true;
+            }
+
             return false;
         }
         public void Check()
@@ -75,26 +74,26 @@ namespace BittrexAbuse
             s.OldLast = 0;
             s.USDT = 500;
             s.BTC = 0;
-
-            bool a = false;
+       
             s.Last = e.GetMarketSummary("BTC");
             while (s.USDT < 51000)
             {
-                if (s.USDT > s.Purchase)
+                if (s.USDT > 1)
                 {
                     s.Buy(e);
 
                 }
-                Console.WriteLine("Last = {0}", s.Last.Last);
+
                 Console.WriteLine("Purchase = {0}", s.Purchase);
+                Console.WriteLine("Last = {0}", s.Last.Last);
                 Console.WriteLine("Old = {0}", s.OldLast);
                 Thread.Sleep(5000);
-                a = s.Sell(e);
+                s.Sell(e);
             }
 
             Console.WriteLine("USDT = {0}", s.USDT);
 
-         
-        }  
+
+        }
     }
 }
