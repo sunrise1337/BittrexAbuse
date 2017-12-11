@@ -31,14 +31,14 @@ namespace BittrexAbuse
                 Fall = true;
                 FallCounter = 0;
                 while (Fall)
-                {                                
+                {
                     if (Last.Bid <= OldBid)
                     {
                         Thread.Sleep(1000);
                         Fall = true;
 
                         CheckBid();
-                        FallCounter++;                     
+                        FallCounter++;
                     }
                     else
                     {
@@ -46,7 +46,7 @@ namespace BittrexAbuse
                     }
                     Last = e.GetMarketSummary("NEO");
                 }
-                if (Last.Bid < OldBid && Last.Bid < (Last.High * 0.98m) || FallCounter>0 && Last.Bid < (Last.High * 0.98m))
+                if (Last.Bid < OldBid && Last.Bid < (Last.High * 0.98m) || FallCounter > 0 && Last.Bid < (Last.High * 0.98m))
                 {
 
                     Purchase = Last.Bid;
@@ -68,8 +68,8 @@ namespace BittrexAbuse
                 Rise = true;
                 while (Rise)
                 {
-                   
-                  
+
+
                     if (Last.Ask >= OldAsk)
                     {
                         Thread.Sleep(1000);
@@ -131,34 +131,34 @@ namespace BittrexAbuse
         static void Main(string[] args)
         {
 
-            ExchangeContext context = new ExchangeContext();
-            context.QuoteCurrency = "USDT";
-            e.Initialise(context);
-            Score s = new Score();
-            s.CurrentLast = 0;
-            s.OldAsk = 0;
-            s.OldBid = 0;
-            s.USDT = 500;
-            s.BTC = 0;
-            int i = 0;
-            s.Last = e.GetMarketSummary("NEO");
-            while (s.USDT < 51000)
-            {
-                if (s.USDT > 1)
-                {
-                    s.Buy(e);
+            //ExchangeContext context = new ExchangeContext();
+            //context.QuoteCurrency = "USDT";
+            //e.Initialise(context);
+            //Score s = new Score();
+            //s.CurrentLast = 0;
+            //s.OldAsk = 0;
+            //s.OldBid = 0;
+            //s.USDT = 500;
+            //s.BTC = 0;
+            //int i = 0;
+            //s.Last = e.GetMarketSummary("NEO");
+            //while (s.USDT < 51000)
+            //{
+            //    if (s.USDT > 1)
+            //    {
+            //        s.Buy(e);
 
-                }
-                //Console.WriteLine("Purchase = {0}", s.Purchase);
-              
-                Thread.Sleep(4000);
-                if (s.Purchase > 0)
-                {
-                    s.Sell(e);
-                }
-            }
-
-            Console.WriteLine("USDT = {0}", s.USDT);
+            //    }
+            //    Thread.Sleep(4000);
+            //    if (s.Purchase > 0)
+            //    {
+            //        s.Sell(e);
+            //    }
+            //}
+            //decimal a = 0.0001m;
+            //Console.WriteLine("USDT = {0}", s.USDT);
+            var USDTBalance = Math.Floor(9.111119999m);
+            Console.WriteLine(USDTBalance);
         }
     }
 }
