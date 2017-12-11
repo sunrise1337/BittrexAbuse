@@ -30,16 +30,14 @@ namespace BittrexAbuse
                 Fall = true;
                 FallCounter = 0;
                 while (Fall)
-                {
-                   
-                    
+                {                                
                     if (Last.Last <= OldLast)
                     {
+                        Thread.Sleep(1000);
                         Fall = true;
                         Console.WriteLine("FALLING");
                         Check();
-                        FallCounter++;
-                        Thread.Sleep(1000);
+                        FallCounter++;                     
                     }
                     else
                     {
@@ -56,12 +54,8 @@ namespace BittrexAbuse
                     Console.WriteLine("METHOD BUY");
                     Console.WriteLine("Balance = {0} BTC", BTC);
                     Console.WriteLine("Balance = {0} USDT", USDT);
-
-
                 }
             }
-
-
         }
         public bool Sell(Exchange e)
         {
@@ -77,10 +71,11 @@ namespace BittrexAbuse
                   
                     if (Last.Last >= OldLast)
                     {
+                        Thread.Sleep(1000);
                         Check();
                         Rise = true;
                         Console.WriteLine("RAISING");
-                        Thread.Sleep(1000);
+                        
 
                     }
                     else
