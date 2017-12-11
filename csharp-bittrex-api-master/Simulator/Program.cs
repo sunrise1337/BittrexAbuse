@@ -13,7 +13,8 @@ namespace BittrexAbuse
     {
         public decimal BTC { get; set; }
         public decimal USDT { get; set; }
-        public decimal OldLast { get; set; }
+        public decimal OldBid { get; set; }
+        public decimal OldAsk { get; set; }
         public decimal Purchase { get; set; }
         public decimal CurrentLast { get; set; }
         public GetMarketSummaryResponse Last { get; set; }
@@ -23,71 +24,71 @@ namespace BittrexAbuse
         public void Buy(Exchange e)
         {
 
-            Last = e.GetMarketSummary("BTC");
-            Check();
-            if (Last.Last < OldLast)
+            Last = e.GetMarketSummary("NEO");
+            CheckBid();
+            if (Last.Bid < OldBid)
             {
                 Fall = true;
                 FallCounter = 0;
                 while (Fall)
                 {                                
-                    if (Last.Last <= OldLast)
+                    if (Last.Bid <= OldBid)
                     {
                         Thread.Sleep(1000);
                         Fall = true;
-                        Console.WriteLine("FALLING");
-                        Check();
+
+                        CheckBid();
                         FallCounter++;                     
                     }
                     else
                     {
                         Fall = false;
                     }
-                    Last = e.GetMarketSummary("BTC");
+                    Last = e.GetMarketSummary("NEO");
                 }
-                if (Last.Last < OldLast && Last.Last < (Last.High * 0.975m) || FallCounter>0 && Last.Last < (Last.High * 0.975m))
+                if (Last.Bid < OldBid && Last.Bid < (Last.High * 0.98m) || FallCounter>0 && Last.Bid < (Last.High * 0.98m))
                 {
 
-                    Purchase = Last.Last;
-                    BTC = USDT / Last.Last;
-                    USDT = USDT - (BTC * Last.Last);
+                    Purchase = Last.Bid;
+                    BTC = USDT / Last.Bid;
+                    USDT = USDT - (BTC * Last.Bid);
                     Console.WriteLine("METHOD BUY");
-                    Console.WriteLine("Balance = {0} BTC", BTC);
+                    Console.WriteLine("Balance = {0} ZEC", BTC);
                     Console.WriteLine("Balance = {0} USDT", USDT);
                 }
             }
         }
         public bool Sell(Exchange e)
         {
-            Last = e.GetMarketSummary("BTC");
-            Check();
-            Console.WriteLine("Purchase: {0}",Purchase);
-            if (Last.Last > Purchase)
+            Last = e.GetMarketSummary("NEO");
+            CheckAsk();
+            //Console.WriteLine("Purchase: {0}", Purchase);
+            if (Last.Ask > Purchase)
             {
                 Rise = true;
                 while (Rise)
                 {
                    
                   
-                    if (Last.Last >= OldLast)
+                    if (Last.Ask >= OldAsk)
                     {
                         Thread.Sleep(1000);
-                        Check();
+                        CheckAsk();
                         Rise = true;
-                        Console.WriteLine("RAISING");
-                        
+                        //Console.WriteLine("RAISING");
+
 
                     }
                     else
                     {
                         Rise = false;
                     }
-                    Last = e.GetMarketSummary("BTC");
+                    Last = e.GetMarketSummary("NEO");
                 }
 
-                if (Last.Last > Purchase && BTC > 0)
+                if (Last.Ask > Purchase && BTC > 0)
                 {
-                    USDT += BTC * Last.Last;
+                    USDT += BTC * Last.Ask;
                     BTC = 0;
                     Console.WriteLine("METHOD SELL");
                     Console.WriteLine("Balance = {0} USDT", USDT);
@@ -107,12 +108,19 @@ namespace BittrexAbuse
             //i++;
             return false;
         }
-        public void Check()
+        public void CheckAsk()
         {
-            OldLast = CurrentLast;
-            CurrentLast = Last.Last;
-            Console.WriteLine("Last = {0}", CurrentLast);
-            Console.WriteLine("Old = {0}", OldLast);
+            OldAsk = CurrentLast;
+            CurrentLast = Last.Ask;
+            //Console.WriteLine("Last = {0}", CurrentLast);
+            //Console.WriteLine("Old = {0}", OldLast);
+        }
+        public void CheckBid()
+        {
+            OldBid = CurrentLast;
+            CurrentLast = Last.Bid;
+            //Console.WriteLine("Last = {0}", CurrentLast);
+            //Console.WriteLine("Old = {0}", OldLast);
         }
 
     }
@@ -128,11 +136,12 @@ namespace BittrexAbuse
             e.Initialise(context);
             Score s = new Score();
             s.CurrentLast = 0;
-            s.OldLast = 0;
+            s.OldAsk = 0;
+            s.OldBid = 0;
             s.USDT = 500;
             s.BTC = 0;
             int i = 0;
-            s.Last = e.GetMarketSummary("BTC");
+            s.Last = e.GetMarketSummary("NEO");
             while (s.USDT < 51000)
             {
                 if (s.USDT > 1)
@@ -140,7 +149,6 @@ namespace BittrexAbuse
                     s.Buy(e);
 
                 }
-
                 //Console.WriteLine("Purchase = {0}", s.Purchase);
               
                 Thread.Sleep(4000);
@@ -148,12 +156,9 @@ namespace BittrexAbuse
                 {
                     s.Sell(e);
                 }
-
             }
 
             Console.WriteLine("USDT = {0}", s.USDT);
-
-
         }
     }
 }
