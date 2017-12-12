@@ -14,8 +14,9 @@ namespace BittrexAbuse
     {
         public decimal InitialBalance { get; set; }
         public decimal Profit { get; set; }
+        public decimal Comission { get; set; }
         public decimal COIN { get; set; }
-        public decimal BTCBalance { get; set; }
+        public decimal USDTBalance { get; set; }
         public decimal OldBid { get; set; }
         public decimal OldAsk { get; set; }
         public decimal Purchase { get; set; }
@@ -26,7 +27,7 @@ namespace BittrexAbuse
         public int FallCounter { get; set; }
         public void Buy(Exchange e)
         {
-            Last = e.GetMarketSummary("NEO");
+            Last = e.GetMarketSummary("BTC");
             CheckAsk();
 
             // Console.WriteLine("Last ask: {0}", Last.Ask);
@@ -50,24 +51,26 @@ namespace BittrexAbuse
                     {
                         Fall = false;
                     }
-                    Last = e.GetMarketSummary("NEO");
+                    Last = e.GetMarketSummary("BTC");
                 }
                 if (Last.Ask < OldAsk && Last.Ask < (Last.High * 0.98m) || FallCounter > 0 && Last.Ask < (Last.High * 0.98m))
                 {
-                    var a = Decimal.Round((BTCBalance - 0.00000130m) / Last.Ask, 8);
+                    InitialBalance = e.GetBalance("USDT").Available;
+                    Comission = Decimal.Round((USDTBalance / Last.Ask) * Last.Ask * 0.0050m, 8);
+                    var quantity = Decimal.Round(((USDTBalance - Comission) / Last.Ask) , 8);
 
-                    e.PlaceBuyOrder("NEO", a, Last.Ask);
+                    e.PlaceBuyOrder("BTC", quantity, Last.Ask);
 
-                    Console.WriteLine("buy quantity: {0} price: {1}", Decimal.Round(BTCBalance / Last.Ask, 8), Last.Ask);
-                    COIN = e.GetBalance("NEO").Available;
-                    BTCBalance = e.GetBalance("BTC").Available;
+                    Console.WriteLine("buy quantity: {0} price: {1}", Decimal.Round(USDTBalance / Last.Ask, 8), Last.Ask);
+                    COIN = e.GetBalance("BTC").Available;
+                    USDTBalance = e.GetBalance("USDT").Available;
                     Purchase = Last.Ask;
                 }
             }
         }
         public bool Sell(Exchange e)
         {
-            Last = e.GetMarketSummary("NEO");
+            Last = e.GetMarketSummary("BTC");
             CheckBid();
 
             // Console.WriteLine("Last bid: {0}", Last.Bid);
@@ -92,24 +95,24 @@ namespace BittrexAbuse
                     {
                         Rise = false;
                     }
-                    Last = e.GetMarketSummary("NEO");
+                    Last = e.GetMarketSummary("BTC");
                 }
 
-                if (Last.Bid > Purchase && COIN > 0)
+                if (Last.Bid > Purchase && COIN > 0 && (COIN * Purchase)-Comission > InitialBalance)
                 {
-                    //BTCBalance += COIN * Last.Ask;
+                    //USDTBalance += COIN * Last.Ask;
                     //COIN = 0;
                     //Console.WriteLine("METHOD SELL");
-                    //Console.WriteLine("Balance = {0} BTCBalance", BTCBalance);
+                    //Console.WriteLine("Balance = {0} USDTBalance", USDTBalance);
                     // Purchase = 0;
 
-                    e.PlaceSellOrder("NEO", e.GetBalance("NEO").Available, Last.Bid);
+                    e.PlaceSellOrder("BTC", e.GetBalance("BTC").Available, Last.Bid);
 
-                    Console.WriteLine("sell quantity: {0} price: {1}", e.GetBalance("NEO").Available, Last.Bid);
+                    Console.WriteLine("sell quantity: {0} price: {1}", e.GetBalance("BTC").Available, Last.Bid);
 
-                    BTCBalance = e.GetBalance("BTC").Available;
-
-                    Profit = BTCBalance - InitialBalance;
+                    USDTBalance = e.GetBalance("USDT").Available;
+                    COIN = 0;
+                    Profit = USDTBalance - InitialBalance;
 
                     Console.WriteLine("Profit: {0}", Profit);
 
@@ -119,10 +122,10 @@ namespace BittrexAbuse
             //else if (i==20)
             //{
             //    i = 0;
-            //    BTCBalance += COIN * Last.Last;
+            //    USDTBalance += COIN * Last.Last;
             //    COIN = 0;
             //    Console.WriteLine("FORCE SELL");
-            //    Console.WriteLine("Balance = {0} BTCBalance", BTCBalance);
+            //    Console.WriteLine("Balance = {0} USDTBalance", USDTBalance);
             //}
             //i++;
             return false;
@@ -155,7 +158,7 @@ namespace BittrexAbuse
             Thread.CurrentThread.CurrentCulture = customCulture;
             ExchangeContext context = new ExchangeContext();
 
-            context.QuoteCurrency = "BTC";
+            context.QuoteCurrency = "USDT";
             context.ApiKey = "8ef631a422f743eabcbefc288a9b20d0";
             context.Secret = "419b15331ef64491b76477522bd79770";
             context.Simulate = false;
@@ -165,26 +168,27 @@ namespace BittrexAbuse
             s.CurrentLast = 0;
             s.OldAsk = 0;
             s.OldBid = 0;
-            s.BTCBalance = e.GetBalance("BTC").Available;
-            s.COIN = e.GetBalance("NEO").Available;
-            s.InitialBalance = s.BTCBalance;
-
-            s.Last = e.GetMarketSummary("NEO");
-
+            s.USDTBalance = e.GetBalance("USDT").Available;
+            s.COIN = e.GetBalance("BTC").Available;
+            s.InitialBalance = s.USDTBalance;
+            s.Last = e.GetMarketSummary("BTC");
+            s.Purchase = 0;
             while (true)
             {
-                if (s.BTCBalance > 0.00025000m)
+                if (s.USDTBalance > 3.000000m)
                 {
                     s.Buy(e);
                 }
 
-                if (s.Purchase > 0 && e.GetBalance("NEO").Available > 0)
+                if (s.Purchase > 0 && s.COIN > 0.00040000m)
                 {
                     s.Sell(e);
                 }
 
                 Thread.Sleep(3000);
             }
+
+
         }
     }
 }
