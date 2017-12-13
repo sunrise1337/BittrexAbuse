@@ -25,7 +25,7 @@ namespace BittrexAbuse
         public bool Fall { get; set; }
         public bool Rise { get; set; }
         public int FallCounter { get; set; }
-        public void Buy(Exchange e)
+        public bool Buy(Exchange e)
         {
             Last = e.GetMarketSummary("BTC");
             CheckAsk();
@@ -56,16 +56,24 @@ namespace BittrexAbuse
                 if (Last.Ask < OldAsk && Last.Ask < (Last.High * 0.98m) || FallCounter > 0 && Last.Ask < (Last.High * 0.98m))
                 {
                     InitialBalance = e.GetBalance("USDT").Available;
-                    Comission = Decimal.Round((USDTBalance / Last.Ask) * Last.Ask * 0.0050m, 8);
+                    Comission = Decimal.Round((USDTBalance / Last.Ask) * Last.Ask * 0.0051m, 8);
                     var quantity = Decimal.Round(((USDTBalance - Comission) / Last.Ask) , 8);
 
                     e.PlaceBuyOrder("BTC", quantity, Last.Ask);
-
+                    Purchase = Last.Ask;
                     Console.WriteLine("buy quantity: {0} price: {1}", Decimal.Round(USDTBalance / Last.Ask, 8), Last.Ask);
                     COIN = e.GetBalance("BTC").Available;
                     USDTBalance = e.GetBalance("USDT").Available;
-                    Purchase = Last.Ask;
+                    return true;
                 }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
             }
         }
         public bool Sell(Exchange e)
@@ -98,7 +106,7 @@ namespace BittrexAbuse
                     Last = e.GetMarketSummary("BTC");
                 }
 
-                if (Last.Bid > Purchase && COIN > 0 && (COIN * Purchase)-Comission > InitialBalance)
+                if (Last.Bid > Purchase && COIN > 0 && ((COIN * Last.Bid) - Comission) > InitialBalance)
                 {
                     //USDTBalance += COIN * Last.Ask;
                     //COIN = 0;
@@ -170,22 +178,58 @@ namespace BittrexAbuse
             s.OldBid = 0;
             s.USDTBalance = e.GetBalance("USDT").Available;
             s.COIN = e.GetBalance("BTC").Available;
+            //Console.WriteLine("USDT balance = {0}",s.USDTBalance);
+            //Console.WriteLine("BTC balance = {0}", s.COIN);
             s.InitialBalance = s.USDTBalance;
             s.Last = e.GetMarketSummary("BTC");
             s.Purchase = 0;
+            var a = e.GetOrderHistory("BTC");
+
+            //foreach (var item in a)
+            //{
+            //    Console.WriteLine("TimeStamp = {0}", item.TimeStamp);
+            //    Console.WriteLine("Quantity = {0}", item.Quantity);
+            //    Console.WriteLine("Price = {0}", item.Price);
+            //    Console.WriteLine("Per Unit = {0}", item.PricePerUnit);
+            //    Console.WriteLine("Limit = {0}", item.Limit);
+            //    Console.WriteLine("Commission = {0}", item.Commission);
+            //    Console.WriteLine("Exchange = {0}", item.Exchange);
+            //    Console.WriteLine("Limit = {0}", item.Limit);
+            //    Console.WriteLine("END OF ORDER");
+            //    Console.WriteLine();
+            //}
+            //Console.WriteLine(a);
+
+
+            //var c = Decimal.Round((8.04000000m / 15896.0m) * 15896.99m * 0.0050m, 8);
+            //var quantity = Decimal.Round(((8.04000000m - c) / 15896.99m), 8);
+            //Console.WriteLine(c);
+            //Console.WriteLine(quantity);
+            //var aas = (quantity * 15950.0m) - 0.01971770m;
+            //Console.WriteLine(aas);
+            //if (15950.0m > 15896.0m &&((quantity * 16190.0m) - c) > 8.04000000m)
+            //{
+            //    Console.WriteLine("PRodano");
+            //}
+            var isBuy = false;
+            var isSell = false;
             while (true)
             {
-                if (s.USDTBalance > 3.000000m)
+                while (!isBuy)
                 {
-                    s.Buy(e);
+                   isBuy = s.Buy(e);
+                    isSell = false;
+                    Thread.Sleep(3000);
+                }             
+
+                while (!isSell)
+                {
+                   isSell = s.Sell(e);
+                    isBuy = false;
+                    Thread.Sleep(3000);
                 }
 
-                if (s.Purchase > 0 && s.COIN > 0.00040000m)
-                {
-                    s.Sell(e);
-                }
-
-                Thread.Sleep(3000);
+              
             }
 
 
