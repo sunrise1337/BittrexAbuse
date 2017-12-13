@@ -53,10 +53,10 @@ namespace BittrexAbuse
                     }
                     Last = e.GetMarketSummary("BTC");
                 }
-                if (Last.Ask < OldAsk && Last.Ask < (Last.High * 0.98m) || FallCounter > 0 && Last.Ask < (Last.High * 0.98m))
+                if (Last.Ask < OldAsk && Last.Ask < (Last.High * 0.97m) || FallCounter > 0 && Last.Ask < (Last.High * 0.97m))
                 {
                     InitialBalance = e.GetBalance("USDT").Available;
-                    Comission = Decimal.Round((USDTBalance / Last.Ask) * Last.Ask * 0.0051m, 8);
+                    Comission = Decimal.Round((USDTBalance / Last.Ask) * Last.Ask * 0.0031m, 8);
                     var quantity = Decimal.Round(((USDTBalance - Comission) / Last.Ask) , 8);
 
                     e.PlaceBuyOrder("BTC", quantity, Last.Ask);
@@ -83,7 +83,7 @@ namespace BittrexAbuse
 
             // Console.WriteLine("Last bid: {0}", Last.Bid);
 
-            if (Last.Bid > Purchase)
+            if (Last.Bid > Purchase && ((COIN * Last.Bid) - Comission) > InitialBalance)
             {
                 Rise = true;
                 while (Rise)
@@ -213,6 +213,7 @@ namespace BittrexAbuse
             //}
             var isBuy = false;
             var isSell = false;
+         
             while (true)
             {
                 while (!isBuy)
