@@ -14,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{47228E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BittrexAbuse", "BittrexAbuse\BittrexAbuse.csproj", "{BFAADE0C-921D-4939-B5BE-DD1218AFD985}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{37451086-C806-4A07-B339-916F167A4E3D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,10 +28,6 @@ Global
 		{BFAADE0C-921D-4939-B5BE-DD1218AFD985}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFAADE0C-921D-4939-B5BE-DD1218AFD985}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFAADE0C-921D-4939-B5BE-DD1218AFD985}.Release|Any CPU.Build.0 = Release|Any CPU
-		{37451086-C806-4A07-B339-916F167A4E3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37451086-C806-4A07-B339-916F167A4E3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37451086-C806-4A07-B339-916F167A4E3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37451086-C806-4A07-B339-916F167A4E3D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
