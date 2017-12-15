@@ -56,8 +56,8 @@ namespace BittrexAbuse
                 if (Last.Ask < OldAsk && Last.Ask < (Last.High * 0.975m) || FallCounter > 0 && Last.Ask < (Last.High * 0.975m))
                 {
                     InitialBalance = e.GetBalance("USDT").Available;
-                    Comission = Decimal.Round((USDTBalance / Last.Ask) * Last.Ask * 0.0029m, 8);
-                    var quantity = Decimal.Round(((USDTBalance - Comission) / Last.Ask) , 8);
+                    Comission = Decimal.Round((InitialBalance / Last.Ask) * Last.Ask * 0.0029m, 8);
+                    var quantity = Decimal.Round(((InitialBalance - Comission) / Last.Ask) , 8);
                     Console.WriteLine("Commission = {0}",Comission);
                     Console.WriteLine("USDTBalance = {0}", USDTBalance);
                     Console.WriteLine("Last.Ask = {0}", Last.Ask);
