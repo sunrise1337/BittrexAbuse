@@ -27,7 +27,7 @@ namespace BittrexAbuse
         public int FallCounter { get; set; }
         public bool Buy(Exchange e)
         {
-            Last = e.GetMarketSummary("BTC");
+            Last = e.GetMarketSummary("NEO");
             CheckAsk();
 
             // Console.WriteLine("Last ask: {0}", Last.Ask);
@@ -51,7 +51,7 @@ namespace BittrexAbuse
                     {
                         Fall = false;
                     }
-                    Last = e.GetMarketSummary("BTC");
+                    Last = e.GetMarketSummary("NEO");
                 }
                 if (Last.Ask < OldAsk && Last.Ask < (Last.High * 0.975m) || FallCounter > 0 && Last.Ask < (Last.High * 0.975m))
                 {
@@ -63,7 +63,7 @@ namespace BittrexAbuse
                     Console.WriteLine("Last.Ask = {0}", Last.Ask);
                     Console.WriteLine("InitialBalance = {0}", InitialBalance);
 
-                    e.PlaceBuyOrder("BTC", quantity, Last.Ask);
+                    e.PlaceBuyOrder("NEO", quantity, Last.Ask);
                     Purchase = Last.Ask;
                     Console.WriteLine("buy quantity: {0} price: {1}", Decimal.Round(USDTBalance / Last.Ask, 8), Last.Ask);
                     COIN = quantity;
@@ -82,7 +82,7 @@ namespace BittrexAbuse
         }
         public bool Sell(Exchange e)
         {
-            Last = e.GetMarketSummary("BTC");
+            Last = e.GetMarketSummary("NEO");
             CheckBid();
 
             // Console.WriteLine("Last bid: {0}", Last.Bid);
@@ -91,6 +91,7 @@ namespace BittrexAbuse
             Console.WriteLine("Coin =  {0}", COIN);
             Console.WriteLine("Commission =  {0}", Comission);
             Console.WriteLine("Last.bid =  {0}", Last.Bid);
+            Console.WriteLine("Profit =  {0}", ((COIN * Last.Bid) - Comission)-InitialBalance);
             if (((COIN * Last.Bid) - Comission) > InitialBalance)
             {
                 Rise = true;
@@ -108,24 +109,24 @@ namespace BittrexAbuse
                     {
                         Rise = false;
                     }
-                    Last = e.GetMarketSummary("BTC");
+                    Last = e.GetMarketSummary("NEO");
                 }
                 Console.WriteLine();
                 Console.WriteLine("InitialBalance = {0}", InitialBalance);
-                Console.WriteLine("Profit = ", (COIN * Last.Bid) - Comission);
+                Console.WriteLine("Can recieve = {0}", (COIN * Last.Bid) - Comission);
+                Console.WriteLine("Profit =  {0}", ((COIN * Last.Bid) - Comission) - InitialBalance);
                 Console.WriteLine("Comission = {0}", Comission);
                 Console.WriteLine("Last.Bid = {0}", Last.Bid);
                 if (COIN > 0 && ((COIN * Last.Bid) - Comission) > InitialBalance)
                 {
-                    e.PlaceSellOrder("BTC", e.GetBalance("BTC").Available, Last.Bid);
+                    e.PlaceSellOrder("NEO", e.GetBalance("NEO").Available, Last.Bid);
 
-                    Console.WriteLine("sell quantity: {0} price: {1}", e.GetBalance("BTC").Available, Last.Bid);
+                    Console.WriteLine("sell quantity: {0} price: {1}", e.GetBalance("NEO").Available, Last.Bid);
 
                     USDTBalance = e.GetBalance("USDT").Available;
                     COIN = 0;
-                    Profit = USDTBalance - InitialBalance;
 
-                    Console.WriteLine("Profit: {0}", Profit);
+                    Console.WriteLine("Profit =  {0}", ((COIN * Last.Bid) - Comission) - InitialBalance);
 
                     return true;
                 }
@@ -171,11 +172,11 @@ namespace BittrexAbuse
             s.OldAsk = 0;
             s.OldBid = 0;
             s.USDTBalance = e.GetBalance("USDT").Available;
-            s.COIN = e.GetBalance("BTC").Available;
+            s.COIN = e.GetBalance("NEO").Available;
             //Console.WriteLine("USDT balance = {0}",s.USDTBalance);
             //Console.WriteLine("BTC balance = {0}", s.COIN);
             s.InitialBalance = s.USDTBalance;
-            s.Last = e.GetMarketSummary("BTC");
+            s.Last = e.GetMarketSummary("NEO");
             s.Purchase = 0;
             //var a = e.GetOrderHistory("BTC");
 
