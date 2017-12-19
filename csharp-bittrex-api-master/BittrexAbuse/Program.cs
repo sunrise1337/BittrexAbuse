@@ -25,6 +25,7 @@ namespace BittrexAbuse
         public bool Fall { get; set; }
         public bool Rise { get; set; }
         public int FallCounter { get; set; }
+        public decimal SellPrice { get; set; }
         public bool Buy(Exchange e)
         {
             Last = e.GetMarketSummary("NEO");
@@ -32,53 +33,49 @@ namespace BittrexAbuse
 
             // Console.WriteLine("Last ask: {0}", Last.Ask);
             // Console.WriteLine("Old ask: {0}", OldAsk);
-
-            if (Last.Ask < OldAsk)
+            if (SellPrice == 0 || SellPrice > Last.Ask)
             {
-                Fall = true;
-                FallCounter = 0;
-                while (Fall)
+                if (Last.Ask < OldAsk)
                 {
-                    if (Last.Ask <= OldAsk)
+                    Fall = true;
+                    FallCounter = 0;
+                    while (Fall)
                     {
-                        Thread.Sleep(1000);
-                        Fall = true;
+                        if (Last.Ask <= OldAsk)
+                        {
+                            Thread.Sleep(1000);
+                            Fall = true;
 
-                        CheckAsk();
-                        FallCounter++;
+                            CheckAsk();
+                            FallCounter++;
+                        }
+                        else
+                        {
+                            Fall = false;
+                        }
+                        Last = e.GetMarketSummary("NEO");
                     }
-                    else
+                    if (Last.Ask < OldAsk && Last.Ask < (Last.High * 0.975m) || FallCounter > 0 && Last.Ask < (Last.High * 0.975m))
                     {
-                        Fall = false;
-                    }
-                    Last = e.GetMarketSummary("NEO");
-                }
-                if (Last.Ask < OldAsk && Last.Ask < (Last.High * 0.975m) || FallCounter > 0 && Last.Ask < (Last.High * 0.975m))
-                {
-                    InitialBalance = e.GetBalance("USDT").Available;
-                    Comission = Decimal.Round((InitialBalance / Last.Ask) * Last.Ask * 0.0029m, 8);
-                    var quantity = Decimal.Round(((InitialBalance - Comission) / Last.Ask) , 8);
-                    Console.WriteLine("Commission = {0}",Comission);
-                    Console.WriteLine("USDTBalance = {0}", USDTBalance);
-                    Console.WriteLine("Last.Ask = {0}", Last.Ask);
-                    Console.WriteLine("InitialBalance = {0}", InitialBalance);
+                        InitialBalance = e.GetBalance("USDT").Available;
+                        Comission = Decimal.Round((InitialBalance / Last.Ask) * Last.Ask * 0.0029m, 8);
+                        var quantity = Decimal.Round(((InitialBalance - Comission) / Last.Ask), 8);
+                        Console.WriteLine("Commission = {0}", Comission);
+                        Console.WriteLine("USDTBalance = {0}", USDTBalance);
+                        Console.WriteLine("Last.Ask = {0}", Last.Ask);
+                        Console.WriteLine("InitialBalance = {0}", InitialBalance);
 
-                    e.PlaceBuyOrder("NEO", quantity, Last.Ask);
-                    Purchase = Last.Ask;
-                    Console.WriteLine("buy quantity: {0} price: {1}", Decimal.Round(USDTBalance / Last.Ask, 8), Last.Ask);
-                    COIN = quantity;
-                    USDTBalance = e.GetBalance("USDT").Available;
-                    return true;
-                }
-                else
-                {
-                    return false;
+                        e.PlaceBuyOrder("NEO", quantity, Last.Ask);
+                        Purchase = Last.Ask;
+                        Console.WriteLine("buy quantity: {0} price: {1}", Decimal.Round(USDTBalance / Last.Ask, 8), Last.Ask);
+                        COIN = quantity;
+                        USDTBalance = e.GetBalance("USDT").Available;
+                        return true;
+                    }
+
                 }
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
         public bool Sell(Exchange e)
         {
@@ -86,18 +83,18 @@ namespace BittrexAbuse
             CheckBid();
 
             // Console.WriteLine("Last bid: {0}", Last.Bid);
-          
+
             Console.WriteLine("Can recieve = {0}", (COIN * Last.Bid) - Comission);
             Console.WriteLine("Coin =  {0}", COIN);
             Console.WriteLine("Commission =  {0}", Comission);
             Console.WriteLine("Last.bid =  {0}", Last.Bid);
-            Console.WriteLine("Profit =  {0}", ((COIN * Last.Bid) - Comission)-InitialBalance);
+            Console.WriteLine("Profit =  {0}", ((COIN * Last.Bid) - Comission) - InitialBalance);
             if (((COIN * Last.Bid) - Comission) > InitialBalance)
             {
                 Rise = true;
                 while (Rise)
                 {
-                    
+
                     if (Last.Bid >= OldBid)
                     {
                         Thread.Sleep(1000);
@@ -120,7 +117,7 @@ namespace BittrexAbuse
                 if (COIN > 0 && ((COIN * Last.Bid) - Comission) > InitialBalance)
                 {
                     e.PlaceSellOrder("NEO", e.GetBalance("NEO").Available, Last.Bid);
-
+                    SellPrice = Last.Bid;
                     Console.WriteLine("sell quantity: {0} price: {1}", e.GetBalance("NEO").Available, Last.Bid);
 
                     USDTBalance = e.GetBalance("USDT").Available;
@@ -202,7 +199,7 @@ namespace BittrexAbuse
             //Console.WriteLine(quantity);
             //var aas = (quantity * 15600.0m) - c;
             //Console.WriteLine(aas);
-
+            s.SellPrice = 0;
             var isBuy = false;
             var isSell = false;
             while (true)
